@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 3.4)
 project(franka_control)
 
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 find_package(catkin REQUIRED COMPONENTS
   controller_interface
   controller_manager
