@@ -17,7 +17,8 @@
 #include <memory>
 #include <mutex>
 
-using namespace boost::placeholders;
+using boost::placeholders::_1;
+using boost::placeholders::_2;
 
 using franka_gripper::GraspAction;
 using franka_gripper::HomingAction;

@@ -11,7 +11,8 @@
 
 #include <franka/robot_state.h>
 
-using namespace boost::placeholders;
+using boost::placeholders::_1;
+using boost::placeholders::_2;
 
 namespace franka_example_controllers {
 
