@@ -11,6 +11,8 @@
 
 #include <franka/robot_state.h>
 
+using namespace boost::placeholders;
+
 namespace franka_example_controllers {
 
 bool ForceExampleController::init(hardware_interface::RobotHW* robot_hw,

@@ -4,6 +4,8 @@
 #include <franka_gazebo/franka_gripper_sim.h>
 #include <pluginlib/class_list_macros.h>
 
+using namespace boost::placeholders;
+
 namespace franka_gazebo {
 
 using actionlib::SimpleActionServer;

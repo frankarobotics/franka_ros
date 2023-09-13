@@ -18,6 +18,8 @@
 #include <tf/transform_listener.h>
 #include <tf_conversions/tf_eigen.h>
 
+using namespace boost::placeholders;
+
 namespace franka_example_controllers {
 
 bool DualArmCartesianImpedanceExampleController::initArm(

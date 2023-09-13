@@ -17,6 +17,7 @@
 #include <vector>
 
 using Vector7d = Eigen::Matrix<double, 7, 1>;
+using namespace boost::placeholders;
 
 const std::string kControllerName = "TeleopJointPDExampleController";
 

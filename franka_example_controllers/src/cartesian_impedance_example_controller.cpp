@@ -10,6 +10,8 @@
 #include <pluginlib/class_list_macros.h>
 #include <ros/ros.h>
 
+using namespace boost::placeholders;
+
 #include <franka_example_controllers/pseudo_inversion.h>
 
 namespace franka_example_controllers {
