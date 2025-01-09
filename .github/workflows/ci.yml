@@ -26,7 +26,7 @@ jobs:
         mkdir -p ${{github.workspace}}/devel     # compilation cache for formatter & linter
 
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         path: src/franka_ros
 
@@ -35,7 +35,7 @@ jobs:
 
     - name: Build Docker Image
       if:   github.ref == 'refs/heads/develop' || ${{env.FLAVOR == matrix.ros_distro}}
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v6
       with:
         tags: franka_ros:${{matrix.ros_distro}}
         file: .ci/Dockerfile.${{matrix.ros_distro}}
@@ -74,7 +74,7 @@ jobs:
         run: |
           source /ros/devel/setup.bash
           cmake --build /ros/build --target check-format
-    
+
     - name: Check Python Format
       if:   github.ref == 'refs/heads/develop' || ${{env.FLAVOR == matrix.ros_distro}}
       uses: addnab/docker-run-action@v3
@@ -111,7 +111,7 @@ jobs:
           catkin_test_results
 
     - name: Upload Tests to Artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       if:   github.ref == 'refs/heads/develop' || ${{env.FLAVOR == matrix.ros_distro}}
       with:
         name: test-results
