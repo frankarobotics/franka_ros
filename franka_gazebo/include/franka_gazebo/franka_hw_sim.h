@@ -158,10 +158,10 @@ class FrankaHWSim : public gazebo_ros_control::RobotHWSim {
   ros::ServiceServer service_set_load_;
   ros::ServiceServer service_collision_behavior_;
   ros::ServiceServer service_user_stop_;
+  ros::ServiceClient service_gazebo_set_model_configuration_;
   ros::ServiceServer service_set_model_configuration_;
   ros::ServiceClient service_controller_list_;
   ros::ServiceClient service_controller_switch_;
-  ros::ServiceClient service_gazebo_set_model_configuration_;
   std::unique_ptr<actionlib::SimpleActionServer<franka_msgs::ErrorRecoveryAction>> action_recovery_;
 
   std::vector<double> lower_force_thresholds_nominal_;

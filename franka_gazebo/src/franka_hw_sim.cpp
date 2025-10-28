@@ -9,8 +9,10 @@
 #include <franka_hw/services.h>
 #include <franka_msgs/SetEEFrame.h>
 #include <franka_msgs/SetForceTorqueCollisionBehavior.h>
+#include <franka_msgs/SetJointConfiguration.h>
 #include <franka_msgs/SetKFrame.h>
 #include <franka_msgs/SetLoad.h>
+#include <gazebo_msgs/SetModelConfiguration.h>
 #include <gazebo_ros_control/robot_hw_sim.h>
 #include <joint_limits_interface/joint_limits_urdf.h>
 #include <std_msgs/Bool.h>
@@ -22,6 +24,8 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <unordered_map>
+#include "ros/ros.h"
 
 namespace franka_gazebo {
 
@@ -407,6 +411,109 @@ void FrankaHWSim::initServices(ros::NodeHandle& nh) {
             this->sm_.process_event(UserStop{static_cast<bool>(request.data)});
             response.success = true;
             return true;
+          });
+  this->service_gazebo_set_model_configuration_ =
+      nh.serviceClient<gazebo_msgs::SetModelConfiguration>("/gazebo/set_model_configuration");
+  this->service_set_model_configuration_ =
+      franka_hw::advertiseService<franka_msgs::SetJointConfiguration>(
+          nh, "set_franka_model_configuration", [&](auto& request, auto& response) {
+            // Check if joints are specified
+            if (request.joint_names.size() == 1 && request.joint_names[0].empty()) {
+              ROS_ERROR_STREAM_NAMED("franka_hw_sim",
+                                     "Failed to set Franka model configuration: the request is "
+                                     "invalid because no joints were specified.");
+              response.success = false;
+              response.error = "no joints specified";
+              return false;
+            }
+
+            // Check if 'position' and 'name' fields have different lengths
+            if (request.joint_names.size() != request.joint_positions.size()) {
+              ROS_ERROR_STREAM_NAMED(
+                  "franka_hw_sim",
+                  "Failed to set Franka model configuration: the request is invalid because the "
+                  "'position' and 'name' fields have different lengths.");
+              response.success = false;
+              response.error = "'position' and 'name' fields length unequal";
+              return false;
+            }
+
+            // Log request information
+            std::ostringstream requested_configuration_stream;
+            for (std::size_t ii = 0; ii < request.joint_names.size(); ii++) {
+              requested_configuration_stream << request.joint_names[ii] << ": "
+                                             << request.joint_positions[ii] << ", ";
+            }
+            std::string requested_configuration_string = requested_configuration_stream.str();
+            requested_configuration_string = requested_configuration_string.substr(
+                0, requested_configuration_string.length() - 2);  // Remove last 2 characters
+            ROS_INFO_STREAM_NAMED(
+                "franka_hw_sim", "Setting joint configuration: " << requested_configuration_string);
+
+            // Validate joint names and joint limits
+            std::unordered_map<std::string, double> model_configuration;
+            for (std::size_t ii = 0; ii < request.joint_names.size(); ii++) {
+              std::string joint(request.joint_names[ii]);
+              double position(request.joint_positions[ii]);
+
+              auto joint_iterator = this->joints_.find(joint);
+              if (joint_iterator != this->joints_.end()) {  // If joint exists
+                double min_position(joint_iterator->second->limits.min_position);
+                double max_position(joint_iterator->second->limits.max_position);
+
+                // Check if position is within joint limits
+                if (position == boost::algorithm::clamp(position, min_position, max_position)) {
+                  model_configuration.emplace(std::make_pair(joint, position));
+                } else {
+                  ROS_WARN_STREAM_NAMED("franka_hw_sim",
+                                        "Joint configuration of joint '"
+                                            << joint
+                                            << "' was not set since the requested joint position ("
+                                            << position << ") is not within joint limits (i.e. "
+                                            << min_position << " - " << max_position << ").");
+                }
+              } else {
+                ROS_WARN_STREAM_NAMED("franka_hw_sim",
+                                      "Joint configuration of joint '"
+                                          << joint
+                                          << "' not set since it is not a valid panda joint.");
+              }
+            }
+
+            // Return if no valid positions were found
+            if (model_configuration.empty()) {
+              ROS_ERROR_STREAM_NAMED("franka_hw_sim",
+                                     "Setting of Franka model configuration aborted since no valid "
+                                     "joint configuration were found.");
+              response.success = false;
+              response.error = "no valid joint configurations";
+              return false;
+            }
+
+            // Call Gazebo 'set_model_configuration' service and update Franka joint positions
+            gazebo_msgs::SetModelConfiguration gazebo_model_configuration;
+            gazebo_model_configuration.request.model_name = "panda";
+            for (const auto& pair : model_configuration) {
+              gazebo_model_configuration.request.joint_names.push_back(pair.first);
+              gazebo_model_configuration.request.joint_positions.push_back(pair.second);
+            }
+            if (this->service_gazebo_set_model_configuration_.call(gazebo_model_configuration)) {
+              // Update franka positions
+              for (const auto& pair : model_configuration) {
+                this->joints_[pair.first]->setJointPosition(pair.second);
+              }
+
+              response.success = true;
+              return true;
+            }
+
+            ROS_WARN_STREAM_NAMED(
+                "franka_hw_sim",
+                "Setting of Franka model configuration failed since "
+                "a problem occurred when setting the joint configuration in Gazebo.");
+            response.success = false;
+            response.error = "gazebo service call failed";
+            return false;
           });
   this->service_controller_list_ = nh.serviceClient<controller_manager_msgs::ListControllers>(
       "controller_manager/list_controllers");
