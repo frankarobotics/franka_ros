@@ -18,9 +18,12 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
 )
 
-find_package(Franka 0.9.0 QUIET)
+find_package(Franka 0.14.1 QUIET)
 if(NOT Franka_FOUND)
-  find_package(Franka 0.8.0 REQUIRED)
+  find_package(Franka 0.9.0 QUIET)
+  if(NOT Franka_FOUND)
+    find_package(Franka 0.8.0 REQUIRED)
+  endif()
 endif()
 
 # merge Franka + catkin INCLUDE_DIRS in topological order
