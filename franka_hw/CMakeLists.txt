@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 3.4)
 project(franka_hw)
 
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 find_package(catkin REQUIRED COMPONENTS
   actionlib
   controller_interface
@@ -110,6 +107,9 @@ install(TARGETS franka_hw franka_control_services
 )
 install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+)
+install(FILES franka_combinable_hw_plugin.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
 ## Tools
