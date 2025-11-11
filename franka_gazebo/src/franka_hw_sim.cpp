@@ -35,14 +35,14 @@ bool FrankaHWSim::initSim(const std::string& robot_namespace,
                           gazebo::physics::ModelPtr parent,
                           const urdf::Model* const urdf,
                           std::vector<transmission_interface::TransmissionInfo> transmissions) {
-  model_nh.param<std::string>("arm_id", this->arm_id_, robot_namespace);
-  if (this->arm_id_ != robot_namespace) {
-    ROS_WARN_STREAM_NAMED(
-        "franka_hw_sim",
-        "Caution: Robot names differ! Read 'arm_id: "
-            << this->arm_id_ << "' from parameter server but URDF defines '<robotNamespace>"
-            << robot_namespace << "</robotNamespace>'. Will use '" << this->arm_id_ << "'!");
+  // Try to get the arm_id from the robot_namespace otherwise use the model name.
+  if (!model_nh.hasParam("arm_id")) {
+    ROS_WARN_STREAM_NAMED("franka_hw_sim", "No 'arm_id' found on '" << model_nh.getNamespace()
+                                                                    << "' parameter namespace."
+                                                                    << " Using model name instead ("
+                                                                    << parent->GetName() << ").");
   }
+  model_nh.param<std::string>("arm_id", this->arm_id_, parent->GetName());
 
   this->robot_ = parent;
   this->robot_initialized_ = false;
