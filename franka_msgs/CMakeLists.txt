@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.4)
+cmake_minimum_required(VERSION 3.10)
 project(franka_msgs)
 
 find_package(catkin REQUIRED COMPONENTS message_generation std_msgs sensor_msgs actionlib_msgs)
