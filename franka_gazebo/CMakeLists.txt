@@ -143,10 +143,7 @@ install(TARGETS franka_hw_sim franka_gripper_sim
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-install(DIRECTORY launch
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-)
-install(DIRECTORY config
+install(DIRECTORY launch config models world
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
