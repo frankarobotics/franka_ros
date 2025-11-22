@@ -82,6 +82,17 @@ bool FrankaHWSim::initSim(const std::string& robot_namespace,
 
   ROS_INFO_STREAM_NAMED("franka_hw_sim", "Using physics type " << physics->GetType());
 
+  // Print information about the used physics engine
+  std::vector<std::string> supported_engines{"ode", "dart"};
+  std::string physics_engine = physics->GetType();
+  ROS_INFO_STREAM_NAMED("franka_hw_sim", "Using physics type " << physics->GetType());
+  if (std::find(supported_engines.begin(), supported_engines.end(), physics_engine) ==
+      supported_engines.end()) {
+    ROS_ERROR_STREAM_NAMED("franka_hw_sim",
+                           "The Panda Gazebo model does not yet officially support the '" +
+                               physics_engine + "' physics engine.");
+  }
+
   // Retrieve initial gravity vector from Gazebo
   // NOTE: Can be overwritten by the user via the 'gravity_vector' ROS parameter.
   auto gravity = physics->World()->Gravity();

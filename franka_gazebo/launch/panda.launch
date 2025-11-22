@@ -6,6 +6,7 @@
   <arg name="paused"      default="false" doc="Should the simulation directly be stopped at 0s?" />
   <arg name="world"       default="worlds/empty.world" doc="Filename to a SDF World for gazebo to use" />
   <arg name="rviz"        default="false" doc="Should RVIz be launched?" />
+  <arg name="physics"     default="ode"   doc="The physics engine used by gazebo"/> <!--Phyics engines: ode|dart-->
 
   <!-- Robot Customization -->
   <arg name="arm_id"      default="panda" doc="Name of the robot to spawn" />
@@ -38,6 +39,7 @@
     <arg name="paused" value="$(arg paused)" />
     <arg name="world" value="$(arg world)" />
     <arg name="rviz" value="$(arg rviz)" />
+    <arg name="physics" value="$(arg physics)" />
 
     <arg name="robot" value="panda" />
     <arg name="arm_id" value="$(arg arm_id)" />
