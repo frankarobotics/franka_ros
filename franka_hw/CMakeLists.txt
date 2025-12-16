@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 3.4)
 project(franka_hw)
 
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 find_package(catkin REQUIRED COMPONENTS
   actionlib
   controller_interface
@@ -52,6 +49,8 @@ add_library(franka_hw
   src/resource_helpers.cpp
   src/trigger_rate.cpp
 )
+
+target_compile_features(franka_hw PUBLIC cxx_std_17)
 
 add_dependencies(franka_hw
   ${${PROJECT_NAME}_EXPORTED_TARGETS}

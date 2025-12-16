@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 3.4)
 project(franka_visualization)
 
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   roscpp
@@ -25,6 +22,7 @@ foreach(executable ${EXECUTABLES})
   add_executable(${executable}
     src/${executable}.cpp
   )
+  target_compile_features(${executable} PUBLIC cxx_std_17)
   add_dependencies(${executable}
     ${${PROJECT_NAME}_EXPORTED_TARGETS}
     ${catkin_EXPORTED_TARGETS}
