@@ -65,17 +65,13 @@ void JointPositionExampleController::update(const ros::Time& /*time*/,
                                             const ros::Duration& period) {
   elapsed_time_ += period;
 
-  const std::array<double, 7> q_target{{1.22020739, -0.86006264, -1.37826989, -2.07608879, -0.1665989, 3.38659885, 0.10734876}};
-  const double motion_time = 8.0;
-
-  double s = elapsed_time_.toSec() / motion_time;
-  if (s > 1.0) {
-    s = 1.0;
-  }
+  double delta_angle = M_PI / 16 * (1 - std::cos(M_PI / 5.0 * elapsed_time_.toSec())) * 0.2;
   for (size_t i = 0; i < 7; ++i) {
-    double q_cmd =
-        initial_pose_[i] + s * (q_target[i] - initial_pose_[i]);
-    position_joint_handles_[i].setCommand(q_cmd);
+    if (i == 4) {
+      position_joint_handles_[i].setCommand(initial_pose_[i] - delta_angle);
+    } else {
+      position_joint_handles_[i].setCommand(initial_pose_[i] + delta_angle);
+    }
   }
 }
 
