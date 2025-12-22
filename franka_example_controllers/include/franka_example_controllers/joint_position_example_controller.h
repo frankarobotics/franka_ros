@@ -57,7 +57,9 @@ class JointPositionExampleController : public controller_interface::MultiInterfa
   hardware_interface::PositionJointInterface* position_joint_interface_;
   std::vector<hardware_interface::JointHandle> position_joint_handles_;
   ros::Duration elapsed_time_;
+  ros::Duration back_time_;
   std::array<double, 7> initial_pose_{};
+  std::array<double, 7> q_start{{0, -M_PI_4, 0, -3 * M_PI_4, 0, M_PI_2, M_PI_4}};
   // ros::Subscriber release_signal_sub_;
   bool release_requested_;
   // void releaseCallback(const std_msgs::Bool::ConstPtr& msg);

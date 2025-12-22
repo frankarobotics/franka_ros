@@ -46,7 +46,6 @@ bool JointPositionExampleController::init(hardware_interface::RobotHW* robot_har
     }
   }
 
-  std::array<double, 7> q_start{{0, -M_PI_4, 0, -3 * M_PI_4, 0, M_PI_2, M_PI_4}};
   for (size_t i = 0; i < q_start.size(); i++) {
     if (std::abs(position_joint_handles_[i].getPosition() - q_start[i]) > 0.1) {
       ROS_ERROR_STREAM(
@@ -88,6 +87,7 @@ void JointPositionExampleController::starting(const ros::Time& /* time */) {
     initial_pose_[i] = position_joint_handles_[i].getPosition();
   }
   elapsed_time_ = ros::Duration(0.0);
+  back_time_ = ros::Duration(0.0);
 }
 
 void JointPositionExampleController::update(const ros::Time& /*time*/,
@@ -95,18 +95,44 @@ void JointPositionExampleController::update(const ros::Time& /*time*/,
   elapsed_time_ += period;
 
   const std::array<double, 7> q_target{{1.22020739, -0.86006264, -1.37826989, -2.07608879, -0.1665989, 3.38659885, 0.10734876}};
-  const double motion_time = 8.0;
+  const double motion_time = 5.0;
 
   double s = elapsed_time_.toSec() / motion_time;
+  if(!released_)
+  {
+    back_time_ = elapsed_time_;
+  }
+  double r = (elapsed_time_ - back_time_).toSec() / motion_time;
   if (s > 1.0) 
   {
     s = 1.0;
     robot_reached_target_ = true;
   }
-  for (size_t i = 0; i < 7; ++i) {
-    double q_cmd = initial_pose_[i] + s * (q_target[i] - initial_pose_[i]);
-    position_joint_handles_[i].setCommand(q_cmd);
+  if (r > 2.0) 
+  {
+    r = 2.0;
   }
+  if(!released_)
+  {
+    for (size_t i = 0; i < 7; ++i) 
+    {
+      double q_cmd = initial_pose_[i] + s * (q_target[i] - initial_pose_[i]);
+      position_joint_handles_[i].setCommand(q_cmd);
+    }
+  }
+  else
+  {
+    if(r <= 1.0)
+    {
+      r = 1.0;
+    }
+    for (size_t i = 0; i < 7; ++i)
+    {
+      double q_cmd = q_target[i] + (r - 1.0) * (q_start[i] - q_target[i]);
+      position_joint_handles_[i].setCommand(q_cmd);
+    }
+  }
+  
   if (robot_reached_target_)
   {
     switch (gripper_state_)
@@ -139,7 +165,7 @@ void JointPositionExampleController::update(const ros::Time& /*time*/,
 
           franka_gripper::MoveGoal goal;
           goal.width = 0.08;
-          goal.speed = 0.15;
+          goal.speed = 0.3;
           move_client_->sendGoal(goal);
           released_ = true;
         }
