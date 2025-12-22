@@ -6,13 +6,36 @@
 #include <string>
 #include <vector>
 
+#include <actionlib/client/simple_action_client.h>
+#include <franka_gripper/HomingAction.h>
+#include <franka_gripper/MoveAction.h>
+#include <franka_gripper/GraspAction.h>
+#include <franka_gripper/StopAction.h>
+
+#include <fcntl.h>
+#include <unistd.h>
+#include <iostream>
+
 #include <controller_interface/multi_interface_controller.h>
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/robot_hw.h>
+#include <std_msgs/Bool.h>  
 #include <ros/node_handle.h>
 #include <ros/time.h>
 
+using HomingClient = actionlib::SimpleActionClient<franka_gripper::HomingAction>;
+using MoveClient   = actionlib::SimpleActionClient<franka_gripper::MoveAction>;
+using GraspClient  = actionlib::SimpleActionClient<franka_gripper::GraspAction>;
+using StopClient   = actionlib::SimpleActionClient<franka_gripper::StopAction>;
+
 namespace franka_example_controllers {
+
+enum class GripperState {
+  OPEN,
+  GRASP,
+  HOLD,
+  RELEASE
+};
 
 class JointPositionExampleController : public controller_interface::MultiInterfaceController<
                                            hardware_interface::PositionJointInterface> {
@@ -21,11 +44,25 @@ class JointPositionExampleController : public controller_interface::MultiInterfa
   void starting(const ros::Time&) override;
   void update(const ros::Time&, const ros::Duration& period) override;
 
+  std::unique_ptr<HomingClient> homing_client_;
+  std::unique_ptr<MoveClient>   move_client_;
+  std::unique_ptr<GraspClient>  grasp_client_;
+  std::unique_ptr<StopClient>   stop_client_;
+
+  bool robot_reached_target_;                                        
+  GripperState gripper_state_;
+  bool gripper_cmd_sent_;
+  int fd; //flag for opening the fifo file
+  bool released_;
+
  private:
   hardware_interface::PositionJointInterface* position_joint_interface_;
   std::vector<hardware_interface::JointHandle> position_joint_handles_;
   ros::Duration elapsed_time_;
   std::array<double, 7> initial_pose_{};
+  ros::Subscriber release_signal_sub_;
+  bool release_requested_;
+  void releaseCallback(const std_msgs::Bool::ConstPtr& msg);
 };
 
 }  // namespace franka_example_controllers
