@@ -57,7 +57,7 @@ bool JointPositionExampleController::init(hardware_interface::RobotHW* robot_har
     }
   }
 
-  release_signal_sub_ = node_handle.subscribe("gripper_release", 1, &JointPositionExampleController::releaseCallback, this);
+  release_srv_ = node_handle.advertiseService("gripper_release", &JointPositionExampleController::releaseServiceCallback, this);
 
   robot_reached_target_ = false;
 
@@ -104,8 +104,7 @@ void JointPositionExampleController::update(const ros::Time& /*time*/,
     robot_reached_target_ = true;
   }
   for (size_t i = 0; i < 7; ++i) {
-    double q_cmd =
-        initial_pose_[i] + s * (q_target[i] - initial_pose_[i]);
+    double q_cmd = initial_pose_[i] + s * (q_target[i] - initial_pose_[i]);
     position_joint_handles_[i].setCommand(q_cmd);
   }
   if (robot_reached_target_)
@@ -113,7 +112,6 @@ void JointPositionExampleController::update(const ros::Time& /*time*/,
     switch (gripper_state_)
     {
       case GripperState::OPEN:
-        // ROS_INFO("OPEN");
         if (!gripper_cmd_sent_) 
         {
           franka_gripper::GraspGoal goal;
@@ -128,7 +126,6 @@ void JointPositionExampleController::update(const ros::Time& /*time*/,
         break;
       
       case GripperState::GRASP:
-        // ROS_INFO("GRASP");
         if (this->release_requested_) 
         {
           ROS_INFO("Release Signal Received!");
@@ -137,7 +134,6 @@ void JointPositionExampleController::update(const ros::Time& /*time*/,
         break;
 
       case GripperState::RELEASE:
-        // ROS_INFO("RELEASE");
         if (this->release_requested_ && !released_) {
           // stop_client_->sendGoal(franka_gripper::StopGoal());
 
@@ -155,11 +151,15 @@ void JointPositionExampleController::update(const ros::Time& /*time*/,
   }
 }
 
-void JointPositionExampleController::releaseCallback(const std_msgs::Bool::ConstPtr& msg) {
-    if (msg->data) {
-        ROS_INFO("topic received!");
-        this->release_requested_ = true;
-    }
+bool JointPositionExampleController::releaseServiceCallback(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& res)
+{
+    this->release_requested_ = true;
+
+    res.success = true;
+    res.message = "Gripper release requested";
+
+    ROS_INFO("gripper_release service called");
+    return true;
 }
 
 }  // namespace franka_example_controllers

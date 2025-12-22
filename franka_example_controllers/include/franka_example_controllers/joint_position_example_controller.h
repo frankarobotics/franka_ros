@@ -12,9 +12,7 @@
 #include <franka_gripper/GraspAction.h>
 #include <franka_gripper/StopAction.h>
 
-#include <fcntl.h>
-#include <unistd.h>
-#include <iostream>
+#include <std_srvs/Trigger.h>
 
 #include <controller_interface/multi_interface_controller.h>
 #include <hardware_interface/joint_command_interface.h>
@@ -52,7 +50,7 @@ class JointPositionExampleController : public controller_interface::MultiInterfa
   bool robot_reached_target_;                                        
   GripperState gripper_state_;
   bool gripper_cmd_sent_;
-  int fd; //flag for opening the fifo file
+  ros::ServiceServer release_srv_;
   bool released_;
 
  private:
@@ -60,9 +58,10 @@ class JointPositionExampleController : public controller_interface::MultiInterfa
   std::vector<hardware_interface::JointHandle> position_joint_handles_;
   ros::Duration elapsed_time_;
   std::array<double, 7> initial_pose_{};
-  ros::Subscriber release_signal_sub_;
+  // ros::Subscriber release_signal_sub_;
   bool release_requested_;
-  void releaseCallback(const std_msgs::Bool::ConstPtr& msg);
+  // void releaseCallback(const std_msgs::Bool::ConstPtr& msg);
+  bool releaseServiceCallback(std_srvs::Trigger::Request& req,std_srvs::Trigger::Response& res);
 };
 
 }  // namespace franka_example_controllers
