@@ -104,7 +104,8 @@ void JointVelocityExampleController::update(const ros::Time& /* time */,
                                             const ros::Duration& period) {
   elapsed_time_ += period;
 
-  const std::array<double, 7> q_target{{1.22020739, -0.86006264, -1.37826989, -2.07608879, -0.1665989, 3.38659885, 0.10734876}};
+  // const std::array<double, 7> q_target{{1.22020739, -0.86006264, -1.37826989, -2.07608879, -0.1665989, 3.38659885, 0.10734876}};
+  const std::array<double, 7> q_target{{2.23832222, -0.95686087, -1.87890471, -0.8433237,  -0.48770463,  2.9228949, 0.36379326}};
 
   ros::Duration time_max(8.0);
 
@@ -124,7 +125,7 @@ void JointVelocityExampleController::update(const ros::Time& /* time */,
     double omega_cmd = omega_max * std::tanh(kp_ * e);
     velocity_joint_handles_[i].setCommand(omega_cmd);
   }
-  // ROS_INFO("max_e = %.6f", max_dq);
+  // ROS_INFO("max_e = %.6f, max_dq = %.6f", max_e,max_dq);
 
   if (max_e < e_tol_ && max_dq < dq_tol_) {
     stable_time_ += period;

@@ -49,7 +49,7 @@ class JointVelocityExampleController : public controller_interface::MultiInterfa
   std::unique_ptr<franka_hw::FrankaStateHandle> state_handle_;
 
   std::array<double, 7> q_start{{0, -M_PI_4, 0, -3 * M_PI_4, 0, M_PI_2, M_PI_4}};
-  double omega_max{0.5};
+  double omega_max{0.2};
   double kp_{3.0};
   ros::Duration elapsed_time_;
 
@@ -61,8 +61,8 @@ class JointVelocityExampleController : public controller_interface::MultiInterfa
   bool robot_reached_target_;
   ros::Duration stable_time_{0.0};
 
-  const double e_tol_ = 2e-2;    // rad
-  const double dq_tol_ = 1.5e-2;   // rad/s
+  const double e_tol_ = 3.5e-2;    // rad
+  const double dq_tol_ = 3e-2;   // rad/s
   const double stable_duration_ = 0.5;  // s
 
   GripperState gripper_state_;
