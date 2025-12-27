@@ -89,6 +89,7 @@ position_joint_trajectory_controller:
 
 joint_velocity_example_controller:
     type: franka_example_controllers/JointVelocityExampleController
+    arm_id: $(arg arm_id)
     joint_names:
         - $(arg arm_id)_joint1
         - $(arg arm_id)_joint2
