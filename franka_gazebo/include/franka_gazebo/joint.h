@@ -55,6 +55,10 @@ struct Joint {
   /// \f$Nm\f$ without gravity
   double command = 0;
 
+  /// The clamped applied command from a controller acting on this joint either in \f$N\f$ or
+  /// \f$Nm\f$ without gravity. Set to zero when joint command is saturated due to joint limits.
+  double clamped_command = 0;
+
   /// The current desired position that is used for the PID controller when the joints control
   /// method is "POSITION". When the control method is not "POSITION", this value will only be
   /// updated once at the start of the controller and stay the same until a new controller is

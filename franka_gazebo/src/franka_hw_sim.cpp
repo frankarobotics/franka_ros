@@ -679,7 +679,8 @@ void FrankaHWSim::updateRobotState(ros::Time time) {
     }
 
     if (this->robot_initialized_) {
-      double tau_ext = joint->effort - joint->command + joint->gravity;
+      // NOTE: Use clamped_command to account for internal joint saturation.
+      double tau_ext = joint->effort - joint->clamped_command + joint->gravity;
 
       // Exponential moving average filter from tau_ext -> tau_ext_hat_filtered
       this->robot_state_.tau_ext_hat_filtered[i] =
