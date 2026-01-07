@@ -105,7 +105,8 @@ void JointVelocityExampleController::update(const ros::Time& /* time */,
   elapsed_time_ += period;
 
   // const std::array<double, 7> q_target{{1.22020739, -0.86006264, -1.37826989, -2.07608879, -0.1665989, 3.38659885, 0.10734876}};
-  const std::array<double, 7> q_target{{2.23832222, -0.95686087, -1.87890471, -0.8433237,  -0.48770463,  2.9228949, 0.36379326}};
+  // const std::array<double, 7> q_target{{2.23832222, -0.95686087, -1.87890471, -0.8433237,  -0.48770463,  2.9228949, 0.36379326}};
+  const std::array<double, 7> q_target{{2.01230707e+00, -1.10460275e+00, -1.77963015e+00, -1.40410577e+00, 2.05154487e-03,  3.36654398e+00, -2.79724108e-01}};
 
   ros::Duration time_max(8.0);
 
