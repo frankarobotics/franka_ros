@@ -71,6 +71,16 @@ bool JointVelocityExampleController::init(hardware_interface::RobotHW* robot_har
     return false;
   }
 
+  input_thread_ = std::thread([this]() {
+    while (ros::ok()) {
+      char c = getchar();   // or read GPIO / serial
+      if (c == 'r') {       // press r to release
+        release_requested_.store(true, std::memory_order_relaxed);
+        ROS_INFO("Release key pressed!");
+      }
+    }
+  });
+
   release_srv_ = node_handle.advertiseService("gripper_release", &JointVelocityExampleController::releaseServiceCallback, this);
 
   homing_client_ = std::make_unique<HomingClient>("/franka_gripper/homing", true);
@@ -104,9 +114,8 @@ void JointVelocityExampleController::update(const ros::Time& /* time */,
                                             const ros::Duration& period) {
   elapsed_time_ += period;
 
-  // const std::array<double, 7> q_target{{1.22020739, -0.86006264, -1.37826989, -2.07608879, -0.1665989, 3.38659885, 0.10734876}};
-  // const std::array<double, 7> q_target{{2.23832222, -0.95686087, -1.87890471, -0.8433237,  -0.48770463,  2.9228949, 0.36379326}};
-  const std::array<double, 7> q_target{{2.01230707e+00, -1.10460275e+00, -1.77963015e+00, -1.40410577e+00, 2.05154487e-03,  3.36654398e+00, -2.79724108e-01}};
+  const std::array<double, 7> q_target{{2.207697,-1.271094,-1.800125,-1.124314,-0.074748,3.299907,-0.336494}}; //h=0.6
+  // const std::array<double, 7> q_target{{2.252213,-1.153417,-1.879327,-1.054602,0.076281,3.239308,-0.347780}}; //h=0.65
 
   ros::Duration time_max(8.0);
 
@@ -147,7 +156,7 @@ void JointVelocityExampleController::update(const ros::Time& /* time */,
           franka_gripper::GraspGoal goal;
           goal.width = 0.01;
           goal.speed = 0.01;
-          goal.force = 8.0;
+          goal.force = 4.0;
           grasp_client_->sendGoal(goal);
 
           gripper_cmd_sent_ = true;
@@ -169,7 +178,7 @@ void JointVelocityExampleController::update(const ros::Time& /* time */,
 
           franka_gripper::MoveGoal goal;
           goal.width = 0.08;
-          goal.speed = 0.3;
+          goal.speed = 0.5;
           move_client_->sendGoal(goal);
           released_ = true;
         }

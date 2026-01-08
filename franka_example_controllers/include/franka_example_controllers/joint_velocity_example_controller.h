@@ -18,6 +18,9 @@
 #include <franka_gripper/GraspAction.h>
 #include <franka_gripper/StopAction.h>
 
+#include <atomic>
+#include <thread>
+
 #include <std_srvs/Trigger.h>
 
 using HomingClient = actionlib::SimpleActionClient<franka_gripper::HomingAction>;
@@ -67,7 +70,8 @@ class JointVelocityExampleController : public controller_interface::MultiInterfa
 
   GripperState gripper_state_;
   bool gripper_cmd_sent_;
-  bool release_requested_;
+  std::atomic<bool> release_requested_{false};//bool release_requested_;
+  std::thread input_thread_;
   ros::ServiceServer release_srv_;
   bool released_;
 
