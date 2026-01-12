@@ -8,6 +8,7 @@
   <arg name="rviz"        default="false" doc="Should RVIz be launched?" />
 
   <!-- Robot Customization -->
+  <arg name="load_description"  default="true"  doc="Whether to load robot description" />
   <arg name="arm_id"      default="panda" doc="Name of the robot to spawn" />
   <arg name="use_gripper" default="true"  doc="Should a franka hand be mounted on the flange?" />
   <arg name="controller"  default=" "     doc="Which example controller should be started? (One of {cartesian_impedance,model,force,joint_position,joint_velocity}_example_controller)" />
@@ -55,5 +56,4 @@
     <arg name="interactive_marker" value="$(arg interactive_marker)" />
 
   </include>
-
 </launch>
