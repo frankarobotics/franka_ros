@@ -13,7 +13,7 @@ class TriggerRate {
 
  private:
   ros::Time time_stamp_;
-  double period_;
+  ros::Duration period_;
 };
 
 };  // namespace franka_hw
