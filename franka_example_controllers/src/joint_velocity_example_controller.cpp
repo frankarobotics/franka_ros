@@ -76,6 +76,7 @@ bool JointVelocityExampleController::init(hardware_interface::RobotHW* robot_har
       char c = getchar();   // or read GPIO / serial
       if (c == 'r') {       // press r to release
         release_requested_.store(true, std::memory_order_relaxed);
+        triggerRunBarrier();
         ROS_INFO("Release key pressed!");
       }
     }
@@ -114,8 +115,10 @@ void JointVelocityExampleController::update(const ros::Time& /* time */,
                                             const ros::Duration& period) {
   elapsed_time_ += period;
 
-  const std::array<double, 7> q_target{{2.207697,-1.271094,-1.800125,-1.124314,-0.074748,3.299907,-0.336494}}; //h=0.6
+  // const std::array<double, 7> q_target{{2.207697,-1.271094,-1.800125,-1.124314,-0.074748,3.299907,-0.336494}}; //h=0.6
   // const std::array<double, 7> q_target{{2.252213,-1.153417,-1.879327,-1.054602,0.076281,3.239308,-0.347780}}; //h=0.65
+  // const std::array<double, 7> q_target{{2.143326,-0.913033,-1.930531,-1.080025,-0.288167,3.091908,0.238997}}; //h=0.8
+  const std::array<double, 7> q_target{{0.223019,0.337663,-0.289728,-1.041732,0.251676,2.935638,0.633736}}; //h=1.0
 
   ros::Duration time_max(8.0);
 
@@ -199,6 +202,19 @@ bool JointVelocityExampleController::releaseServiceCallback(std_srvs::Trigger::R
 
     ROS_INFO("gripper_release service called");
     return true;
+}
+
+void JointVelocityExampleController::triggerRunBarrier() {
+  int fd = open("/tmp/run_barrier", O_WRONLY | O_NONBLOCK);
+  if (fd < 0) {
+    ROS_WARN("Could not open /tmp/run_barrier");
+    return;
+  }
+  ssize_t n = write(fd, " ", 1);
+  if (n != 1) {
+    ROS_WARN("Failed to write to /tmp/run_barrier");
+  }
+  close(fd);
 }
 
 void JointVelocityExampleController::stopping(const ros::Time& /*time*/) {

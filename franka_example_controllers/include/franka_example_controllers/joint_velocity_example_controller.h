@@ -21,6 +21,9 @@
 #include <atomic>
 #include <thread>
 
+#include <fcntl.h>
+#include <unistd.h>
+
 #include <std_srvs/Trigger.h>
 
 using HomingClient = actionlib::SimpleActionClient<franka_gripper::HomingAction>;
@@ -64,7 +67,7 @@ class JointVelocityExampleController : public controller_interface::MultiInterfa
   bool robot_reached_target_;
   ros::Duration stable_time_{0.0};
 
-  const double e_tol_ = 3.5e-2;    // rad
+  const double e_tol_ = 4e-2;    // rad
   const double dq_tol_ = 3e-2;   // rad/s
   const double stable_duration_ = 0.5;  // s
 
@@ -76,6 +79,7 @@ class JointVelocityExampleController : public controller_interface::MultiInterfa
   bool released_;
 
   bool releaseServiceCallback(std_srvs::Trigger::Request& req,std_srvs::Trigger::Response& res);
+  void triggerRunBarrier();
 };
 
 }  // namespace franka_example_controllers
