@@ -114,11 +114,11 @@ double Joint::getLinkMass() const {
 }
 
 bool Joint::isInCollision() const {
-  return std::abs(this->effort - this->command) > this->collision_threshold;
+  return std::abs(this->effort - this->command + this->gravity) > this->collision_threshold;
 }
 
 bool Joint::isInContact() const {
-  return std::abs(this->effort - this->command) > this->contact_threshold;
+  return std::abs(this->effort - this->command + this->gravity) > this->contact_threshold;
 }
 
 void Joint::setJointPosition(const double joint_position) {

@@ -20,6 +20,7 @@ Requires `libfranka` >= 0.8.0
   * `franka_description`: `<xacro:franka_robot/>` macro now supports to customize the `parent` frame and its `xyz` + `rpy` offset
   * `franka_hw`: Fix the bug where the previous controller is still running after switching the controller. ([#326](https://github.com/frankaemika/franka_ros/issues/326))
   * `franka_gazebo`: Add `set_franka_model_configuration` service.
+  * `franka_gazebo`: Fix joint collision checking by adding the gravity component to the total torque calculation.
 
 ## 0.10.1 - 2022-09-15
 
